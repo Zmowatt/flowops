@@ -40,7 +40,7 @@ class Request(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     job_name = db.Column(db.String, nullable=False)
-    address - db.Column(db.String, nullable=False)
+    address = db.Column(db.String, nullable=False)
     parts_requested = db.Column(db.String, nullable=False)
     date_needed = db.Column(db.String, nullable=False)
     priority = db.Column(db.String, default="Normal")
@@ -50,7 +50,7 @@ class Request(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
 
     user = db.relationship("User", back_populates="requests")
-    updates = db.relationship("Update", back_populates="request", cascade="all delete-orphan")
+    updates = db.relationship("Update", back_populates="request", cascade="all, delete-orphan")
 
     def to_dict(self):
         return {
@@ -75,7 +75,7 @@ class Update(db.Model):
     request_id = db.Column(db.Integer, db.ForeignKey("requests.id"))
 
     user = db.relationship("User", back_populates="updates")
-    request - db.relationship("Request", back_populates="updates")
+    request = db.relationship("Request", back_populates="updates")
 
     def to_dict(self):
         return {
