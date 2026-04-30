@@ -96,7 +96,82 @@ def logout():
     session.pop("user_id", None)
     return {}, 204
 
+@app.get("/requests")
+def get_requests():
+    requests = Request.query.all()
+    return [req.to_dict() for req in requests], 200
 
+
+@app.get("/requests/<int:id>")
+def get_request(id):
+    req = Request.query.get(id)
+
+    if not req:
+        return {"error": "Request not found"}, 404
+
+    return req.to_dict(), 200
+
+
+@app.post("/requests")
+def create_request():
+    data = request.get_json()
+
+    required_fields = ["job_name", "address", "parts_requested", "date_needed"]
+
+    for field in required_fields:
+        if not data.get(field):
+            return {"error": f"{field} is required"}, 400
+
+    user_id = session.get("user_id")
+
+    if not user_id:
+        return {"error": "You must be logged in"}, 401
+
+    new_request = Request(
+        job_name=data.get("job_name"),
+        address=data.get("address"),
+        parts_requested=data.get("parts_requested"),
+        date_needed=data.get("date_needed"),
+        priority=data.get("priority", "Normal"),
+        status=data.get("status", "Requested"),
+        user_id=user_id
+    )
+
+    db.session.add(new_request)
+    db.session.commit()
+
+    return new_request.to_dict(), 201
+
+
+@app.patch("/requests/<int:id>")
+def update_request(id):
+    req = Request.query.get(id)
+
+    if not req:
+        return {"error": "Request not found"}, 404
+
+    data = request.get_json()
+
+    for field in ["job_name", "address", "parts_requested", "date_needed", "priority", "status"]:
+        if field in data:
+            setattr(req, field, data[field])
+
+    db.session.commit()
+
+    return req.to_dict(), 200
+
+
+@app.delete("/requests/<int:id>")
+def delete_request(id):
+    req = Request.query.get(id)
+
+    if not req:
+        return {"error": "Request not found"}, 404
+
+    db.session.delete(req)
+    db.session.commit()
+
+    return {}, 204
 
 if __name__ == "__main__":
     app.run(port=5555, debug=True)
