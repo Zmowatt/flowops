@@ -173,5 +173,59 @@ def delete_request(id):
 
     return {}, 204
 
+@app.get("/requests/<int:id>/updates")
+def get_request_updates(id):
+    req = Request.query.get(id)
+
+    if not req:
+        return {"error": "Request not found"}, 404
+
+    updates = Update.query.filter_by(request_id=id).all()
+
+    return [update.to_dict() for update in updates], 200
+
+
+@app.post("/requests/<int:id>/updates")
+def create_update(id):
+    req = Request.query.get(id)
+
+    if not req:
+        return {"error": "Request not found"}, 404
+
+    data = request.get_json()
+    message = data.get("message")
+
+    if not message:
+        return {"error": "Message is required"}, 400
+
+    user_id = session.get("user_id")
+
+    if not user_id:
+        return {"error": "You must be logged in"}, 401
+
+    new_update = Update(
+        message=message,
+        user_id=user_id,
+        request_id=id
+    )
+
+    db.session.add(new_update)
+    db.session.commit()
+
+    return new_update.to_dict(), 201
+
+
+@app.delete("/updates/<int:id>")
+def delete_update(id):
+    update = Update.query.get(id)
+
+    if not update:
+        return {"error": "Update not found"}, 404
+
+    db.session.delete(update)
+    db.session.commit()
+
+    return {}, 204
+
 if __name__ == "__main__":
     app.run(port=5555, debug=True)
