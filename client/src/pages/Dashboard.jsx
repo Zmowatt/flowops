@@ -1,9 +1,8 @@
-import { useEffect, useEffectEvent, useState } from "react";
-import RequestCard from "../components/RequestCards";
-import { requestFormReset } from "react-dom";
+import { useEffect, useState } from "react";
+import RequestCard from "../components/RequestCard";
 
 function Dashboard() {
-    const [reqests, setRequests] = useState([]);
+    const [requests, setRequests] = useState([]);
 
     useEffect(() => {
         fetch("http://localhost:5555/requests", {
@@ -17,7 +16,7 @@ function Dashboard() {
         <div>
             <h1>FlowOps Dashboard</h1>
 
-            {request.map((request) => (
+            {requests.map((request) => (
                 <RequestCard key={request.id} request={request} />
             ))}
         </div>

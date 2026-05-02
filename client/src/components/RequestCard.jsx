@@ -8,7 +8,7 @@ function RequestCard({ request }) {
             <p>Parts: {request.parts_requested}</p>
             <p>Status: {request.status}</p>
             <p>Priority: {request.priority}</p>
-            <Link to={` /request/${request.id}`}>View Details</Link>
+            <Link to={`/requests/${request.id}`}>View Details</Link>
             <hr />
         </div>
     );
