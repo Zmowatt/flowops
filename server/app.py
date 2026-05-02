@@ -100,9 +100,24 @@ def logout():
 
 @app.get("/requests")
 def get_requests():
-    requests = Request.query.all()
-    return [req.to_dict() for req in requests], 200
+    page = request.args.get("page", 1, type=int)
+    per_page = request.args.get("per_page", 10, type=int)
 
+    paginated_requests = Request.query.paginate(
+        page=page,
+        per_page=per_page,
+        error_out=False
+    )
+
+    return {
+        "requests": [req.to_dict() for req in paginated_requests.items],
+        "page": paginated_requests.page,
+        "per_page": paginated_requests.per_page,
+        "total": paginated_requests.total,
+        "pages": paginated_requests.pages,
+        "has_next": paginated_requests.has_next,
+        "has_prev": paginated_requests.has_prev,
+    }, 200
 
 @app.get("/requests/<int:id>")
 def get_request(id):

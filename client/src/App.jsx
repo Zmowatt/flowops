@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
+import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
 import NewRequest from "./pages/NewRequest";
 import RequestDetail from "./pages/RequestDetail";
@@ -20,7 +21,12 @@ function App() {
   }, []);
 
   if (!currentUser) {
-    return <Login setCurrentUser={setCurrentUser} />;
+    return (
+      <Routes>
+        <Route path="/signup" element={<Signup setCurrentUser={setCurrentUser} />} />
+        <Route path="*" element={<Login setCurrentUser={setCurrentUser} />} />
+      </Routes>
+    );
   }
 
   return (
