@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 function Login({ setCurrentUser }) {
-  const [email, setEmail] = useState("zachary@example.com");
+  const [email, setEmail] = useState("zmowatt@company.com");
   const [password, setPassword] = useState("password123");
   const [error, setError] = useState("");
 
