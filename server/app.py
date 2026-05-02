@@ -22,6 +22,8 @@ migrate = Migrate(app, db)
 def home():
     return {"message": "FlowOps API is running"}
 
+def get_current_user_id():
+    return session.get("user_id")
 
 
 @app.post("/signup")
@@ -150,6 +152,14 @@ def update_request(id):
     if not req:
         return {"error": "Request not found"}, 404
 
+    user_id = get_current_user_id()
+
+    if not user_id:
+        return {"error": "You must be logged in"}, 401
+
+    if req.user_id != user_id:
+        return {"error": "You are not authorized to update this request"}, 403
+
     data = request.get_json()
 
     for field in ["job_name", "address", "parts_requested", "date_needed", "priority", "status"]:
@@ -167,6 +177,14 @@ def delete_request(id):
 
     if not req:
         return {"error": "Request not found"}, 404
+
+    user_id = get_current_user_id()
+
+    if not user_id:
+        return {"error": "You must be logged in"}, 401
+
+    if req.user_id != user_id:
+        return {"error": "You are not authorized to delete this request"}, 403
 
     db.session.delete(req)
     db.session.commit()
@@ -192,16 +210,16 @@ def create_update(id):
     if not req:
         return {"error": "Request not found"}, 404
 
+    user_id = get_current_user_id()
+
+    if not user_id:
+        return {"error": "You must be logged in"}, 401
+
     data = request.get_json()
     message = data.get("message")
 
     if not message:
         return {"error": "Message is required"}, 400
-
-    user_id = session.get("user_id")
-
-    if not user_id:
-        return {"error": "You must be logged in"}, 401
 
     new_update = Update(
         message=message,
@@ -221,6 +239,14 @@ def delete_update(id):
 
     if not update:
         return {"error": "Update not found"}, 404
+
+    user_id = get_current_user_id()
+
+    if not user_id:
+        return {"error": "You must be logged in"}, 401
+
+    if update.user_id != user_id:
+        return {"error": "You are not authorized to delete this update"}, 403
 
     db.session.delete(update)
     db.session.commit()
